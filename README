@@ -1,0 +1,4 @@
+In the chat app we hold everthing about the Django Channels. In the same way we specified a urlpattern, we specified a routing configuration which is specific for wesockets
+WS is used to pass info to a specific port.
+
+The ChatConsumer is an inheritance of AsyncWebsocketConsumer and async. handles the events.
