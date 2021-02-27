@@ -1,26 +1,24 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Chat Room</title>
-</head>
-<body>
+{% extends "main/base.html" %}
+{% block title %}Chat rooms{% endblock %}
+{% block content %}
+    <h2 id="welcome-header"></h2>
     <textarea id="chat-log" cols="100" rows="20" readonly></textarea><br>
     <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Send">
-    <button class="trigger">😃</button>
+    <input id="chat-message-submit" type="button" class="btn btn-success" value="Send">
+    <button id="emoji-button" class="btn">😃</button>
+
 
     {{ room_name|json_script:"room-name" }}
     {{ request.user.username|json_script:"user_username" }}
     <script src="https://cdn.jsdelivr.net/npm/emoji-button@latest/dist/index.min.js"></script>
     <script>
         var input = document.querySelector('#chat-message-input');
-        const trigger = document.querySelector('.trigger');
+        const trigger = document.querySelector('#emoji-button');
         const picker = new EmojiButton({
             position: 'right-start'
         });
 
-        picker.on('emoji', function(emoji){
+        picker.on('emoji', function (emoji) {
             input.value += emoji;
         })
 
@@ -33,6 +31,8 @@
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const user_username = JSON.parse(document.getElementById('user_username').textContent);
 
+        document.getElementById('welcome-header').innerHTML = "Welcome to #" + roomName;
+
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -41,23 +41,23 @@
             + '/'
         );
 
-        chatSocket.onmessage = function(e) {
+        chatSocket.onmessage = function (e) {
             const data = JSON.parse(e.data);
             document.querySelector('#chat-log').value += (data.username + ': ' + data.message + '\n');
         };
 
-        chatSocket.onclose = function(e) {
+        chatSocket.onclose = function (e) {
             console.error('Chat socket closed unexpectedly');
         };
 
         document.querySelector('#chat-message-input').focus();
-        document.querySelector('#chat-message-input').onkeyup = function(e) {
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
             if (e.keyCode === 13) {  // enter, return
                 document.querySelector('#chat-message-submit').click();
             }
         };
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
+        document.querySelector('#chat-message-submit').onclick = function (e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
@@ -67,5 +67,4 @@
             messageInputDom.value = '';
         };
     </script>
-</body>
-</html>
+{% endblock %}
