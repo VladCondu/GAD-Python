@@ -8,9 +8,30 @@
     <textarea id="chat-log" cols="100" rows="20" readonly></textarea><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
+    <button class="trigger">😃</button>
+
     {{ room_name|json_script:"room-name" }}
+    {{ request.user.username|json_script:"user_username" }}
+    <script src="https://cdn.jsdelivr.net/npm/emoji-button@latest/dist/index.min.js"></script>
+    <script>
+        var input = document.querySelector('#chat-message-input');
+        const trigger = document.querySelector('.trigger');
+        const picker = new EmojiButton({
+            position: 'right-start'
+        });
+
+        picker.on('emoji', function(emoji){
+            input.value += emoji;
+        })
+
+        trigger.addEventListener('click', function () {
+            picker.pickerVisible ? picker.hidePicker() : picker.showPicker(trigger);
+        })
+    </script>
+
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        const user_username = JSON.parse(document.getElementById('user_username').textContent);
 
         const chatSocket = new WebSocket(
             'ws://'
@@ -22,7 +43,7 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            document.querySelector('#chat-log').value += (data.username + ': ' + data.message + '\n');
         };
 
         chatSocket.onclose = function(e) {
@@ -41,6 +62,7 @@
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
                 'message': message,
+                'username': user_username,
             }));
             messageInputDom.value = '';
         };
