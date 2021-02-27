@@ -4,3 +4,15 @@ In the chat app we hold everthing about the Django Channels. In the same way we 
 WS is used to pass info to a specific port.
 
 Install requirements
+
+Open redis docker port with: 
+sudo docker run -p 6379:6379 -d redis:5
+
+Make migrations:
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+Run the server:
+python3 manage.py runserver
+
+Opened at http://localhost:8000
